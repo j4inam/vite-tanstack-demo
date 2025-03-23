@@ -7,8 +7,6 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Heart, MapPinned } from 'lucide-react';
-import { useCurrentUser, useGetUserFavorites } from '@/hooks/Users';
-import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,12 +15,14 @@ import { cn } from '@/lib/utils';
 
 const DogCard = ({
   dog,
-  isFavorite,
-  onToggleFavorites
+  isFavorite = false,
+  showActions = true,
+  onToggleFavorites = () => {}
 }: {
   dog: Dog;
-  isFavorite: boolean;
-  onToggleFavorites: (dogId: string) => void;
+  isFavorite?: boolean;
+  onToggleFavorites?: (dogId: string) => void;
+  showActions?: boolean;
 }) => {
   return (
     <Card className="overflow-hidden pt-0 h-full">
@@ -49,11 +49,13 @@ const DogCard = ({
           {dog.zip_code}
         </p>
       </CardContent>
-      <CardFooter className="flex justify-end">
-        <Button variant="outline" size="icon" onClick={() => onToggleFavorites(dog.id)}>
-          <Heart className={cn('size-4', isFavorite && 'fill-red-500 text-red-500')} />
-        </Button>
-      </CardFooter>
+      {showActions && (
+        <CardFooter className="flex justify-end">
+          <Button variant="outline" size="icon" onClick={() => onToggleFavorites(dog.id)}>
+            <Heart className={cn('size-4', isFavorite && 'fill-red-500 text-red-500')} />
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 };
