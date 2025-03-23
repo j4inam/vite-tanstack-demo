@@ -6,10 +6,10 @@ import { useFindDogMatch, useGetBreeds, useGetDogDetails, useSearchDogs } from '
 import { Button } from '@/components/ui/button';
 import DogCard from '@/components/dog-card';
 import DogMatchDialog from '@/components/dog-match-dialog';
+import DogMatchTrigger from '@/components/dog-match-trigger';
 import SearchForm from '@/components/forms/search-form';
 
 const SearchPage = () => {
-  const [open, setOpen] = useState(false);
   const { data: breeds, isLoading: isBreedsLoading, error: breedsError } = useGetBreeds();
   const {
     data: dogsSearchResponse,
@@ -26,27 +26,10 @@ const SearchPage = () => {
   const { data: user } = useCurrentUser();
   const { mutate: toggleUserFavorites } = useToggleUserFavorites();
   const { data: favorites } = useGetUserFavorites(user?.email);
-  const {
-    mutate: findDogMatch,
-    isPending: isFindDogMatchPending,
-    isSuccess: isFindDogMatchSuccess,
-    data: dogMatch
-  } = useFindDogMatch();
 
   const handleToggleUserFavorites = (dogId: string) => {
     toggleUserFavorites({ dogId, email: user?.email });
   };
-
-  const handleFindFurryMatch = () => {
-    if (!favorites || favorites.length === 0) return;
-    findDogMatch(user?.email);
-  };
-
-  useEffect(() => {
-    if (isFindDogMatchSuccess) {
-      setOpen(true);
-    }
-  }, [isFindDogMatchSuccess]);
 
   useEffect(() => {
     if (dogsSearchResponse?.resultIds) {
@@ -70,27 +53,7 @@ const SearchPage = () => {
           </div>
           Hey {user?.name}, Find Your Perfect Furry Friend
         </a>
-        {favorites && favorites?.length > 0 && (
-          <>
-            <div className="flex flex-1 items-center justify-end gap-4">
-              <p className="flex items-center gap-2 font-bold text-xl">
-                You loved {favorites?.length} {favorites?.length === 1 ? 'dog' : 'dogs'}!
-              </p>
-              {!isFindDogMatchPending && (
-                <Button size="lg" onClick={handleFindFurryMatch}>
-                  Find Furry Match
-                </Button>
-              )}
-              {isFindDogMatchPending && (
-                <Button disabled>
-                  <Loader2 className="animate-spin" />
-                  Finding your match...
-                </Button>
-              )}
-            </div>
-            <DogMatchDialog dog={dogMatch} open={open} onOpenChange={setOpen} />
-          </>
-        )}
+        <DogMatchTrigger />
       </div>
       <div className="flex flex-1 items-center">
         <div className="w-full max-w-xs">
