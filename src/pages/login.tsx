@@ -2,6 +2,7 @@ import LoginForm from '@/components/forms/login-form';
 import { PawPrint } from 'lucide-react';
 import { useForm } from '@tanstack/react-form';
 import { useLoginUser } from '@/hooks/Users';
+import { useNavigate } from '@tanstack/react-router';
 import { z } from 'zod';
 
 const loginSchema = z
@@ -12,8 +13,13 @@ const loginSchema = z
   .required();
 
 const LoginPage = () => {
-  const { mutate: loginUser } = useLoginUser();
+  const { mutate: loginUser, isPending: isLoginPending, isSuccess: isLoginSuccess } = useLoginUser();
+  const navigate = useNavigate();
 
+  if (!isLoginPending && isLoginSuccess) {
+    navigate({ to: '/search' });
+  }
+  
   const loginForm = useForm({
     defaultValues: {
       name: '',
