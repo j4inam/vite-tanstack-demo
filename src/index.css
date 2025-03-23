@@ -118,3 +118,6 @@
     @apply bg-background text-foreground;
   }
 }
+body {
+  font-family: 'Alegreya Variable', sans-serif;
+}

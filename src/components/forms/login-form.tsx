@@ -9,7 +9,7 @@ const LoginForm = ({ loginForm }: { loginForm: any }) => {
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Welcom Back!</CardTitle>
+          <CardTitle className="text-3xl">Welcome Back!</CardTitle>
           <CardDescription>
             Enter your name and email below to login to your account
           </CardDescription>
@@ -53,7 +53,7 @@ const LoginForm = ({ loginForm }: { loginForm: any }) => {
                       <Input
                         id={field.name}
                         type="email"
-                        placeholder="m@example.com"
+                        placeholder="me@example.com"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}

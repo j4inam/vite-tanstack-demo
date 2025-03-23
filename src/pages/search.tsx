@@ -1,8 +1,9 @@
-import { Dog, useGetBreeds, useGetDogDetails, useSearchDogs } from '@/hooks/Dogs';
-import { useEffect, useState } from 'react';
+import { useGetBreeds, useGetDogDetails, useSearchDogs } from '@/hooks/Dogs';
 
+import DogCard from '@/components/dog-card';
 import { PawPrint } from 'lucide-react';
 import SearchForm from '@/components/forms/search-form';
+import { useEffect } from 'react';
 
 const SearchPage = () => {
   const { data: breeds, isLoading: isBreedsLoading, error: breedsError } = useGetBreeds();
@@ -30,9 +31,9 @@ const SearchPage = () => {
   return (
     <div className="flex flex-col gap-4 p-4 md:p-6">
       <div className="flex justify-start gap-4">
-        <a href="#" className="flex items-center gap-2 font-medium">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <PawPrint className="size-4" />
+        <a href="#" className="flex items-center gap-2 font-bold text-xl">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <PawPrint className="size-6" />
           </div>
           Find Your Perfect Furry Friend
         </a>
@@ -42,7 +43,11 @@ const SearchPage = () => {
           <SearchForm breeds={breeds} />
         </div>
       </div>
-      {dogsDetails?.map((dog) => <div key={dog.id}>{dog.name}</div>)}
+      <div className="p-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          {dogsDetails?.map((dog) => <DogCard key={dog.id} dog={dog} />)}
+        </div>
+      </div>
     </div>
   );
 };
