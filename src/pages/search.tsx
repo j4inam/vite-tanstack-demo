@@ -71,30 +71,30 @@ const SearchPage = () => {
           Hey {user?.name}, Find Your Perfect Furry Friend
         </a>
         {favorites && favorites?.length > 0 && (
-          <div className="flex flex-1 items-center justify-end gap-4">
-            <p className="flex items-center gap-2 font-bold text-xl">
-              You loved {favorites?.length} {favorites?.length === 1 ? 'dog' : 'dogs'}!
-            </p>
-            {!isFindDogMatchPending && (
-              <Button size="lg" onClick={handleFindFurryMatch}>
-                Find Furry Match
-              </Button>
-            )}
-            {isFindDogMatchPending && (
-              <Button disabled>
-                <Loader2 className="animate-spin" />
-                Finding your match...
-              </Button>
-            )}
-          </div>
+          <>
+            <div className="flex flex-1 items-center justify-end gap-4">
+              <p className="flex items-center gap-2 font-bold text-xl">
+                You loved {favorites?.length} {favorites?.length === 1 ? 'dog' : 'dogs'}!
+              </p>
+              {!isFindDogMatchPending && (
+                <Button size="lg" onClick={handleFindFurryMatch}>
+                  Find Furry Match
+                </Button>
+              )}
+              {isFindDogMatchPending && (
+                <Button disabled>
+                  <Loader2 className="animate-spin" />
+                  Finding your match...
+                </Button>
+              )}
+            </div>
+            <DogMatchDialog dog={dogMatch} open={open} onOpenChange={setOpen} />
+          </>
         )}
       </div>
-      <div className="flex flex-1 items-center justify-between">
+      <div className="flex flex-1 items-center">
         <div className="w-full max-w-xs">
           <SearchForm breeds={breeds} />
-        </div>
-        <div className="w-full max-w-xs">
-          <DogMatchDialog dog={dogMatch} open={open} onOpenChange={setOpen} />
         </div>
       </div>
       <div className="p-4">
