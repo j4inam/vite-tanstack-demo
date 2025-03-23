@@ -1,13 +1,11 @@
-import { Loader2, PawPrint } from 'lucide-react';
 import { useCurrentUser, useGetUserFavorites, useToggleUserFavorites } from '@/hooks/Users';
-import { useEffect, useState } from 'react';
-import { useFindDogMatch, useGetBreeds, useGetDogDetails, useSearchDogs } from '@/hooks/Dogs';
+import { useGetBreeds, useGetDogDetails, useSearchDogs } from '@/hooks/Dogs';
 
-import { Button } from '@/components/ui/button';
 import DogCard from '@/components/dog-card';
-import DogMatchDialog from '@/components/dog-match-dialog';
 import DogMatchTrigger from '@/components/dog-match-trigger';
+import { PawPrint } from 'lucide-react';
 import SearchForm from '@/components/forms/search-form';
+import { useEffect } from 'react';
 
 const SearchPage = () => {
   const { data: breeds, isLoading: isBreedsLoading, error: breedsError } = useGetBreeds();
