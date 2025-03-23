@@ -1,3 +1,4 @@
+import { BaseStorage, LocalStorage } from './utils/storage';
 import axios, { AxiosError, AxiosInstance } from 'axios';
 
 export interface ApiResponse<T> {
@@ -20,6 +21,8 @@ export interface ApiError {
 }
 
 const API_URL = import.meta.env.VITE_DOGFETCH_API_URL;
+
+const storage: BaseStorage = new LocalStorage();
 
 export class ApiClient {
   private static instance: ApiClient;
@@ -63,6 +66,7 @@ export class ApiClient {
       (error: AxiosError<ApiError>) => {
         if (error.response?.status === 401) {
           // Handle unauthorized
+          storage.delete('user');
           window.history.pushState({}, '', '/login');
         }
         return Promise.reject(this.handleError(error));

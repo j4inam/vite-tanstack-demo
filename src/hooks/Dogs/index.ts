@@ -1,13 +1,14 @@
 import { ApiError, ApiResponse, api } from '@/api.client';
+import { BaseStorage, LocalStorage } from '@/utils/storage';
 import { UseMutationResult, UseQueryResult, useMutation, useQuery } from '@tanstack/react-query';
 
 export interface Dog {
-    id: string
-    img: string
-    name: string
-    age: number
-    zip_code: string
-    breed: string
+  id: string;
+  img: string;
+  name: string;
+  age: number;
+  zip_code: string;
+  breed: string;
 }
 
 interface DogSearchParams {
@@ -21,10 +22,10 @@ interface DogSearchParams {
 }
 
 interface DogSearchResponse {
-    resultIds: string[];
-    total: number;
-    next?: string;
-    prev?: string;
+  resultIds: string[];
+  total: number;
+  next?: string;
+  prev?: string;
 }
 
 // Query keys
@@ -33,7 +34,7 @@ const dogsKeys = {
   all: ['dogs'] as const,
   search: () => [...dogsKeys.all, 'search'] as const,
   searchFilters: (filters: DogSearchParams) => [...dogsKeys.search(), filters] as const,
-  details: (id: string) => [...dogsKeys.all, 'detail', id] as const,
+  details: (id: string) => [...dogsKeys.all, 'detail', id] as const
 };
 
 // GET dog breeds
@@ -47,7 +48,9 @@ export const useGetBreeds = (): UseQueryResult<string[], ApiError> => {
   });
 };
 
-export const useSearchDogs = (params: DogSearchParams): UseQueryResult<DogSearchResponse, ApiError> => {
+export const useSearchDogs = (
+  params: DogSearchParams
+): UseQueryResult<DogSearchResponse, ApiError> => {
   return useQuery({
     queryKey: dogsKeys.searchFilters(params),
     queryFn: async () => {
@@ -58,11 +61,34 @@ export const useSearchDogs = (params: DogSearchParams): UseQueryResult<DogSearch
 };
 
 export const useGetDogDetails = (): UseMutationResult<Dog[], ApiError, string[]> => {
-    return useMutation({
-      mutationFn: async (dogIds: string[]) => {
-        const {data} = await api.post('/dogs', dogIds);
-        return data;
-      }
-    });
-  };
-  
+  return useMutation({
+    mutationFn: async (dogIds: string[]) => {
+      const { data } = await api.post('/dogs', dogIds);
+      return data;
+    }
+  });
+};
+
+export const useFindDogMatch = (): UseMutationResult<
+  Dog | null,
+  ApiError,
+  string | undefined,
+  unknown
+> => {
+  return useMutation({
+    mutationFn: async (userEmail?: string) => {
+      if (!userEmail) return undefined;
+      const userStorage: BaseStorage = new LocalStorage({
+        keySuffix: userEmail
+      });
+      const favoriteDogs = userStorage.get('favorites');
+      const favoriteDogsArray: string[] = JSON.parse(favoriteDogs);
+      console.log('favoriteDogsArray', favoriteDogsArray);
+
+      if (!favoriteDogs) return undefined;
+      const { data: dogMatchId } = await api.post('/dogs/match', favoriteDogsArray);
+      const { data: dogMatchDetails } = await api.post('/dogs', [dogMatchId.match]);
+      return dogMatchDetails[0];
+    }
+  });
+};
