@@ -64,8 +64,8 @@ const LoginForm = ({ loginForm }: { loginForm: any }) => {
                 />
               </div>
               <loginForm.Subscribe
-                selector={(state) => [state.canSubmit, state.isSubmitting]}
-                children={([canSubmit, isSubmitting]) => (
+                selector={(state: any) => [state.canSubmit, state.isSubmitting]}
+                children={([canSubmit, isSubmitting]: any) => (
                   <Button type="submit" disabled={!canSubmit}>
                     {isSubmitting ? '...' : 'Login'}
                   </Button>
