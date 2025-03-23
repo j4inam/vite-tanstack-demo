@@ -26,7 +26,6 @@ const LoginPage = () => {
       email: ''
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
       loginUser(value);
     },
     validators: {

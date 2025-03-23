@@ -1,10 +1,10 @@
-import { Dog, useGetBreeds, useGetDogDetails, useSearchDogs } from '@/hooks/Dogs';
 import { useCurrentUser, useGetUserFavorites, useToggleUserFavorites } from '@/hooks/Users';
-import { useEffect, useState } from 'react';
+import { useGetBreeds, useGetDogDetails, useSearchDogs } from '@/hooks/Dogs';
 
 import DogCard from '@/components/dog-card';
 import { PawPrint } from 'lucide-react';
 import SearchForm from '@/components/forms/search-form';
+import { useEffect } from 'react';
 
 const SearchPage = () => {
   const { data: breeds, isLoading: isBreedsLoading, error: breedsError } = useGetBreeds();
