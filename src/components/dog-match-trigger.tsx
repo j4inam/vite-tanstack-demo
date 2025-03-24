@@ -26,25 +26,22 @@ const DogMatchTrigger = () => {
     }
   }, [isFindDogMatchSuccess]);
   return (
-    favorites &&
-    favorites?.length > 0 && (
-      <>
-        <div className="flex flex-1 items-center justify-end gap-4">
-          {!isFindDogMatchPending && (
-            <Button size="lg" onClick={handleFindFurryMatch}>
-              Find Furry Match
-            </Button>
-          )}
-          {isFindDogMatchPending && (
-            <Button disabled>
-              <Loader2 className="animate-spin" />
-              Finding your match...
-            </Button>
-          )}
-        </div>
-        <DogMatchDialog dog={dogMatch} open={open} onOpenChange={setOpen} />
-      </>
-    )
+    <>
+      <div className="flex items-center justify-end gap-4">
+        {!isFindDogMatchPending && (
+          <Button onClick={handleFindFurryMatch} disabled={!favorites || favorites.length === 0}>
+            Find Furry Match
+          </Button>
+        )}
+        {isFindDogMatchPending && (
+          <Button disabled>
+            <Loader2 className="animate-spin" />
+            Finding your match...
+          </Button>
+        )}
+      </div>
+      <DogMatchDialog dog={dogMatch} open={open} onOpenChange={setOpen} />
+    </>
   );
 };
 
