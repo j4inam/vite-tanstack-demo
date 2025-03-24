@@ -142,17 +142,15 @@ const SearchPage = () => {
           </Button>
         )}
       </div>
-      <div className="p-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {dogsDetails?.map((dog) => (
-            <DogCard
-              key={dog.id}
-              dog={dog}
-              isFavorite={!!favorites?.includes(dog.id)}
-              onToggleFavorites={handleToggleUserFavorites}
-            />
-          ))}
-        </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        {dogsDetails?.map((dog) => (
+          <DogCard
+            key={dog.id}
+            dog={dog}
+            isFavorite={!!favorites?.includes(dog.id)}
+            onToggleFavorites={handleToggleUserFavorites}
+          />
+        ))}
       </div>
       <div className="flex justify-between">
         {dogsSearchResponse?.prev && (
