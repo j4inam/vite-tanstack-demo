@@ -1,6 +1,12 @@
 import { ApiError, api } from '@/api.client';
 import { BaseStorage, LocalStorage } from '@/utils/storage';
-import { UseMutationResult, UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  UseMutationResult,
+  UseQueryResult,
+  useMutation,
+  useQuery,
+  useQueryClient
+} from '@tanstack/react-query';
 
 interface LoginUserProps {
   name: string;
@@ -21,22 +27,48 @@ const userKeys = {
 
 // Authenticate User
 export const useLoginUser = (): UseMutationResult<void, ApiError, LoginUserProps> => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (props: LoginUserProps) => {
+      props = { ...props, email: props.email.toLowerCase() };
       await api.post('/auth/login', props);
       storage.set('user', JSON.stringify(props));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.user });
+    }
+  });
+};
+
+export const useLogoutUser = (): UseMutationResult<void, ApiError> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      await api.post('/auth/logout');
+    },
+    onSuccess: () => {
+      storage.delete('user');
+      queryClient.invalidateQueries({ queryKey: userKeys.user });
     }
   });
 };
 
 export const useCurrentUser = (): UseQueryResult<LoginUserProps | null, void> => {
+  const queryClient = useQueryClient();
   return useQuery({
     queryKey: userKeys.user,
-    queryFn: () => {
+    queryFn: async () => {
       const storedUser = storage.get('user');
-      return storedUser ? JSON.parse(storedUser) : null;
+      if (!storedUser) {
+        // We want to keep our local ("user logged in/out") functionality in sync with the server.
+        // So if the user is not found in local storage, we log them out. Force them to login again.
+        await api.post('/auth/logout');
+        storage.delete('user'); // Clear out the user key in local storage.
+        queryClient.invalidateQueries({ queryKey: userKeys.user });
+      }
+      return JSON.parse(storedUser);
     },
-    staleTime: 1000 * 60 * 60 // Since login token expires in 1 hour
+    staleTime: 1000 * 60 * 60
   });
 };
 

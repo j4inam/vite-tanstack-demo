@@ -146,6 +146,7 @@ const SearchPage = () => {
                 <DropdownMenuContent className="w-48 mr-8">
                   {SORT_BY_OPTIONS.map((sortOption) => (
                     <DropdownMenuCheckboxItem
+                      key={sortOption.value}
                       checked={filters.sort === sortOption.value}
                       onCheckedChange={() => handleSortByChange(sortOption.value)}>
                       {sortOption.label} {sortOption.icon}
@@ -169,9 +170,11 @@ const SearchPage = () => {
           {isFavoritesLoading ? (
             <Skeleton className="h-4 w-full max-w-sm" />
           ) : (
-            <h3 className="flex items-center gap-2 font-bold text-2xl">
-              You loved {favorites?.length} {favorites?.length === 1 ? 'dog' : 'dogs'}!
-            </h3>
+            favorites && favorites.length > 0 ? (
+              <h3 className="flex items-center gap-2 font-bold text-2xl">
+                You loved {favorites.length} {favorites.length === 1 ? 'dog' : 'dogs'}!
+              </h3>
+            ) : null
           )}
         </div>
       </div>
