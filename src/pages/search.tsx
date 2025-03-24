@@ -20,6 +20,8 @@ import DogMatchTrigger from '@/components/dog-match-trigger';
 import { Link } from '@tanstack/react-router';
 import MultiSelectDropdown from '@/components/multi-select-dropdown';
 import { PawPrint } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import SkeletonCard from '@/components/skeleton-card';
 import { parseSearchParams } from '@/utils';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -50,7 +52,7 @@ const SearchPage = () => {
 
   const { data: user } = useCurrentUser();
   const { mutate: toggleUserFavorites } = useToggleUserFavorites();
-  const { data: favorites } = useGetUserFavorites(user?.email);
+  const { data: favorites, isLoading: isFavoritesLoading } = useGetUserFavorites(user?.email);
 
   const handleToggleUserFavorites = (dogId: string) => {
     toggleUserFavorites({ dogId, email: user?.email });
@@ -80,7 +82,7 @@ const SearchPage = () => {
       queryClient.invalidateQueries({ queryKey: dogsKeys.searchFilters(filters) });
     }
   }, [checkedBreeds]);
-  if (isBreedsLoading || isDogsLoading || isGetDogDetailsPending) return <div>Loading...</div>;
+
   if (breedsError || dogsError || isGetDogDetailsError)
     return (
       <div>
@@ -122,12 +124,20 @@ const SearchPage = () => {
       </div>
       <div className="flex flex-1 items-center px-6">
         <div className="flex justify-between w-full">
-          <h4 className="text-xl font-bold">
-            {dogsSearchResponse?.total} {dogsSearchResponse?.total === 1 ? 'dog' : 'dogs'} found.
-          </h4>
-          <h3 className="flex items-center gap-2 font-bold text-2xl">
-            You loved {favorites?.length} {favorites?.length === 1 ? 'dog' : 'dogs'}!
-          </h3>
+          {isDogsLoading ? (
+            <Skeleton className="h-4 w-full max-w-sm" />
+          ) : (
+            <h4 className="text-xl font-bold">
+              {dogsSearchResponse?.total} {dogsSearchResponse?.total === 1 ? 'dog' : 'dogs'} found.
+            </h4>
+          )}
+          {isFavoritesLoading ? (
+            <Skeleton className="h-4 w-full max-w-sm" />
+          ) : (
+            <h3 className="flex items-center gap-2 font-bold text-2xl">
+              You loved {favorites?.length} {favorites?.length === 1 ? 'dog' : 'dogs'}!
+            </h3>
+          )}
         </div>
       </div>
       <div className="flex md:hidden justify-between">
@@ -143,14 +153,16 @@ const SearchPage = () => {
         )}
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {dogsDetails?.map((dog) => (
-          <DogCard
-            key={dog.id}
-            dog={dog}
-            isFavorite={!!favorites?.includes(dog.id)}
-            onToggleFavorites={handleToggleUserFavorites}
-          />
-        ))}
+        {isBreedsLoading || isDogsLoading || isGetDogDetailsPending
+          ? Array.from({ length: 25 }).map((_, index) => <SkeletonCard key={index} />)
+          : dogsDetails?.map((dog) => (
+              <DogCard
+                key={dog.id}
+                dog={dog}
+                isFavorite={!!favorites?.includes(dog.id)}
+                onToggleFavorites={handleToggleUserFavorites}
+              />
+            ))}
       </div>
       <div className="flex justify-between">
         {dogsSearchResponse?.prev && (
