@@ -1,21 +1,55 @@
-import { Loader2, PawPrint } from 'lucide-react';
+import { ArrowDown01, ArrowDownAZ, ArrowUp01, ArrowUpAZ, PawPrint } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  DogSearchParams,
+  dogsKeys,
+  useGetBreeds,
+  useGetDogDetails,
+  useSearchDogs
+} from '@/hooks/Dogs';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuList
+} from '@/components/ui/navigation-menu';
 import { useCurrentUser, useGetUserFavorites, useToggleUserFavorites } from '@/hooks/Users';
 import { useEffect, useState } from 'react';
-import { useFindDogMatch, useGetBreeds, useGetDogDetails, useSearchDogs } from '@/hooks/Dogs';
 
 import { Button } from '@/components/ui/button';
 import DogCard from '@/components/dog-card';
-import DogMatchDialog from '@/components/dog-match-dialog';
-import SearchForm from '@/components/forms/search-form';
+import DogMatchTrigger from '@/components/dog-match-trigger';
+import { Link } from '@tanstack/react-router';
+import MultiSelectDropdown from '@/components/multi-select-dropdown';
+import { Skeleton } from '@/components/ui/skeleton';
+import SkeletonCard from '@/components/skeleton-card';
+import { parseSearchParams } from '@/utils';
+import { useQueryClient } from '@tanstack/react-query';
+
+const SORT_BY_OPTIONS = [
+  { label: 'Breed Asc', value: 'breed:asc', icon: <ArrowDownAZ /> },
+  { label: 'Breed Desc', value: 'breed:desc', icon: <ArrowUpAZ /> },
+  { label: 'Name Asc', value: 'name:asc', icon: <ArrowDownAZ /> },
+  { label: 'Name Desc', value: 'name:desc', icon: <ArrowUpAZ /> },
+  { label: 'Age Asc', value: 'age:asc', icon: <ArrowDown01 /> },
+  { label: 'Age Desc', value: 'age:desc', icon: <ArrowUp01 /> }
+];
 
 const SearchPage = () => {
-  const [open, setOpen] = useState(false);
+  const [filters, setFilters] = useState<DogSearchParams>({ breeds: [], sort: 'breed:asc' });
+  const [checkedBreeds, setCheckedBreeds] = useState<string[]>([]);
+  const queryClient = useQueryClient();
   const { data: breeds, isLoading: isBreedsLoading, error: breedsError } = useGetBreeds();
   const {
     data: dogsSearchResponse,
     isLoading: isDogsLoading,
     error: dogsError
-  } = useSearchDogs({ breeds: ['Pekinese'] });
+  } = useSearchDogs(filters);
   const {
     mutate: getDogsDetails,
     isPending: isGetDogDetailsPending,
@@ -25,35 +59,49 @@ const SearchPage = () => {
 
   const { data: user } = useCurrentUser();
   const { mutate: toggleUserFavorites } = useToggleUserFavorites();
-  const { data: favorites } = useGetUserFavorites(user?.email);
-  const {
-    mutate: findDogMatch,
-    isPending: isFindDogMatchPending,
-    isSuccess: isFindDogMatchSuccess,
-    data: dogMatch
-  } = useFindDogMatch();
+  const { data: favorites, isLoading: isFavoritesLoading } = useGetUserFavorites(user?.email);
 
   const handleToggleUserFavorites = (dogId: string) => {
     toggleUserFavorites({ dogId, email: user?.email });
   };
 
-  const handleFindFurryMatch = () => {
-    if (!favorites || favorites.length === 0) return;
-    findDogMatch(user?.email);
+  const handleCheckedBreedsChange = (breed: string) => {
+    if (checkedBreeds.includes(breed)) {
+      setCheckedBreeds(checkedBreeds.filter((b) => b !== breed));
+    } else {
+      setCheckedBreeds([...checkedBreeds, breed]);
+    }
   };
 
-  useEffect(() => {
-    if (isFindDogMatchSuccess) {
-      setOpen(true);
+  const handleSortByChange = (sortBy: string) => {
+    setFilters({ ...filters, sort: sortBy });
+  };
+
+  const handlePreviousClick = () => {
+    if (dogsSearchResponse?.prev) {
+      const nextFilters: DogSearchParams = parseSearchParams(dogsSearchResponse.prev);
+      setFilters({ ...nextFilters });
     }
-  }, [isFindDogMatchSuccess]);
+  };
+
+  const handleNextClick = () => {
+    const nextFilters: DogSearchParams = parseSearchParams(dogsSearchResponse?.next);
+    setFilters({ ...nextFilters });
+  };
 
   useEffect(() => {
     if (dogsSearchResponse?.resultIds) {
       getDogsDetails(dogsSearchResponse.resultIds);
     }
   }, [dogsSearchResponse]);
-  if (isBreedsLoading || isDogsLoading || isGetDogDetailsPending) return <div>Loading...</div>;
+
+  useEffect(() => {
+    if (checkedBreeds.length > 0) {
+      setFilters({ ...filters, breeds: checkedBreeds });
+      queryClient.invalidateQueries({ queryKey: dogsKeys.searchFilters(filters) });
+    }
+  }, [checkedBreeds]);
+
   if (breedsError || dogsError || isGetDogDetailsError)
     return (
       <div>
@@ -63,51 +111,105 @@ const SearchPage = () => {
 
   return (
     <div className="flex flex-col gap-4 p-4 md:p-6">
-      <div className="flex justify-between gap-4">
-        <a href="#" className="flex items-center gap-2 font-bold text-xl">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <PawPrint className="size-6" />
+      <div className="flex flex-col lg:flex-row justify-between gap-4">
+        <a href="#" className="flex items-center gap-4 font-bold text-xl md:text-2xl lg:text-3xl">
+          <div className="flex h-8 w-8 md:h-12 md:w-12 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <PawPrint className="size-6 md:size-8" />
           </div>
           Hey {user?.name}, Find Your Perfect Furry Friend
         </a>
-        {favorites && favorites?.length > 0 && (
-          <>
-            <div className="flex flex-1 items-center justify-end gap-4">
-              <p className="flex items-center gap-2 font-bold text-xl">
-                You loved {favorites?.length} {favorites?.length === 1 ? 'dog' : 'dogs'}!
-              </p>
-              {!isFindDogMatchPending && (
-                <Button size="lg" onClick={handleFindFurryMatch}>
-                  Find Furry Match
-                </Button>
-              )}
-              {isFindDogMatchPending && (
-                <Button disabled>
-                  <Loader2 className="animate-spin" />
-                  Finding your match...
-                </Button>
-              )}
-            </div>
-            <DogMatchDialog dog={dogMatch} open={open} onOpenChange={setOpen} />
-          </>
-        )}
+        <div className="flex gap-4">
+          <NavigationMenu>
+            <NavigationMenuList>
+              <Link to="/favorites">
+                <NavigationMenuItem>View Favorites</NavigationMenuItem>
+              </Link>
+            </NavigationMenuList>
+          </NavigationMenu>
+          <DogMatchTrigger />
+        </div>
       </div>
       <div className="flex flex-1 items-center">
-        <div className="w-full max-w-xs">
-          <SearchForm breeds={breeds} />
+        <Card className="w-full">
+          <CardContent>
+            <div className="flex justify-between">
+              <MultiSelectDropdown
+                label="Filter By Breeds"
+                values={breeds || []}
+                checkedValues={checkedBreeds}
+                onCheckedValueChange={handleCheckedBreedsChange}
+              />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">Sort By</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-48 mr-8">
+                  {SORT_BY_OPTIONS.map((sortOption) => (
+                    <DropdownMenuCheckboxItem
+                      checked={filters.sort === sortOption.value}
+                      onCheckedChange={() => handleSortByChange(sortOption.value)}>
+                      {sortOption.label} {sortOption.icon}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      <div className="flex flex-1 items-center px-6">
+        <div className="flex justify-between w-full">
+          {isDogsLoading ? (
+            <Skeleton className="h-4 w-full max-w-sm" />
+          ) : (
+            <h4 className="text-xl font-bold">
+              {dogsSearchResponse?.total} {dogsSearchResponse?.total === 1 ? 'dog' : 'dogs'} found.
+            </h4>
+          )}
+          {isFavoritesLoading ? (
+            <Skeleton className="h-4 w-full max-w-sm" />
+          ) : (
+            <h3 className="flex items-center gap-2 font-bold text-2xl">
+              You loved {favorites?.length} {favorites?.length === 1 ? 'dog' : 'dogs'}!
+            </h3>
+          )}
         </div>
       </div>
-      <div className="p-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          {dogsDetails?.map((dog) => (
-            <DogCard
-              key={dog.id}
-              dog={dog}
-              isFavorite={!!favorites?.includes(dog.id)}
-              onToggleFavorites={handleToggleUserFavorites}
-            />
-          ))}
-        </div>
+      <div className="flex md:hidden justify-between">
+        {dogsSearchResponse?.prev && (
+          <Button variant="outline" onClick={handlePreviousClick}>
+            Previous
+          </Button>
+        )}
+        {dogsSearchResponse?.next && (
+          <Button variant="outline" onClick={handleNextClick}>
+            Next
+          </Button>
+        )}
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        {isBreedsLoading || isDogsLoading || isGetDogDetailsPending
+          ? Array.from({ length: 25 }).map((_, index) => <SkeletonCard key={index} />)
+          : dogsDetails?.map((dog) => (
+              <DogCard
+                key={dog.id}
+                dog={dog}
+                isFavorite={!!favorites?.includes(dog.id)}
+                onToggleFavorites={handleToggleUserFavorites}
+              />
+            ))}
+      </div>
+      <div className="flex justify-between">
+        {dogsSearchResponse?.prev && (
+          <Button variant="outline" onClick={handlePreviousClick}>
+            Previous
+          </Button>
+        )}
+        {dogsSearchResponse?.next && (
+          <Button variant="outline" onClick={handleNextClick} className="ml-auto">
+            Next
+          </Button>
+        )}
       </div>
     </div>
   );
