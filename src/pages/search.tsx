@@ -1,3 +1,4 @@
+import { ArrowDown01, ArrowDownAZ, ArrowUp01, ArrowUpAZ, PawPrint } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   DogSearchParams,
@@ -6,6 +7,14 @@ import {
   useGetDogDetails,
   useSearchDogs
 } from '@/hooks/Dogs';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -19,24 +28,24 @@ import DogCard from '@/components/dog-card';
 import DogMatchTrigger from '@/components/dog-match-trigger';
 import { Link } from '@tanstack/react-router';
 import MultiSelectDropdown from '@/components/multi-select-dropdown';
-import { PawPrint } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import SkeletonCard from '@/components/skeleton-card';
 import { parseSearchParams } from '@/utils';
 import { useQueryClient } from '@tanstack/react-query';
 
+const SORT_BY_OPTIONS = [
+  { label: 'Breed Asc', value: 'breed:asc', icon: <ArrowDownAZ /> },
+  { label: 'Breed Desc', value: 'breed:desc', icon: <ArrowUpAZ /> },
+  { label: 'Name Asc', value: 'name:asc', icon: <ArrowDownAZ /> },
+  { label: 'Name Desc', value: 'name:desc', icon: <ArrowUpAZ /> },
+  { label: 'Age Asc', value: 'age:asc', icon: <ArrowDown01 /> },
+  { label: 'Age Desc', value: 'age:desc', icon: <ArrowUp01 /> }
+];
+
 const SearchPage = () => {
   const [filters, setFilters] = useState<DogSearchParams>({ breeds: [] });
   const [checkedBreeds, setCheckedBreeds] = useState<string[]>([]);
   const queryClient = useQueryClient();
-
-  const handleCheckedBreedsChange = (breed: string) => {
-    if (checkedBreeds.includes(breed)) {
-      setCheckedBreeds(checkedBreeds.filter((b) => b !== breed));
-    } else {
-      setCheckedBreeds([...checkedBreeds, breed]);
-    }
-  };
   const { data: breeds, isLoading: isBreedsLoading, error: breedsError } = useGetBreeds();
   const {
     data: dogsSearchResponse,
@@ -56,6 +65,18 @@ const SearchPage = () => {
 
   const handleToggleUserFavorites = (dogId: string) => {
     toggleUserFavorites({ dogId, email: user?.email });
+  };
+
+  const handleCheckedBreedsChange = (breed: string) => {
+    if (checkedBreeds.includes(breed)) {
+      setCheckedBreeds(checkedBreeds.filter((b) => b !== breed));
+    } else {
+      setCheckedBreeds([...checkedBreeds, breed]);
+    }
+  };
+
+  const handleSortByChange = (sortBy: string) => {
+    setFilters({ ...filters, sort: sortBy });
   };
 
   const handlePreviousClick = () => {
@@ -113,12 +134,28 @@ const SearchPage = () => {
       <div className="flex flex-1 items-center">
         <Card className="w-full">
           <CardContent>
-            <MultiSelectDropdown
-              label="Filter By Breeds"
-              values={breeds || []}
-              checkedValues={checkedBreeds}
-              onCheckedValueChange={handleCheckedBreedsChange}
-            />
+            <div className="flex justify-between">
+              <MultiSelectDropdown
+                label="Filter By Breeds"
+                values={breeds || []}
+                checkedValues={checkedBreeds}
+                onCheckedValueChange={handleCheckedBreedsChange}
+              />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">Sort By</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-48 mr-8">
+                  {SORT_BY_OPTIONS.map((sortOption) => (
+                    <DropdownMenuCheckboxItem
+                      checked={filters.sort === sortOption.value}
+                      onCheckedChange={() => handleSortByChange(sortOption.value)}>
+                      {sortOption.label} {sortOption.icon}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </CardContent>
         </Card>
       </div>

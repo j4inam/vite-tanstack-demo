@@ -27,7 +27,7 @@ const MultiSelectDropdown = ({
           {label} {checkedValues.length > 0 ? `(${checkedValues.length})` : ''}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
+      <DropdownMenuContent className="w-56 ml-8">
         <DropdownMenuLabel>Select one or more breeds</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {values &&
