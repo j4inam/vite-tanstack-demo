@@ -2,8 +2,22 @@
 
 Here at Fetch, we love dogs, and hope you do too! Your task is to build a website to help a dog-lover like yourself search through a database of shelter dogs, with the hope of finding a lucky dog a new home!
 
-General Requirements
---------------------
+## How to Run
+
+- Pre-req: Make sure you have Node 20.x installed on your system.
+- Clone project from `main`.
+- Run `cd vite-tanstack-demo`
+- Run `npm install`
+- Create a `.env` file at root matching values from `.env.sample`
+    - Use domain provided: https://frontend-take-home-service.fetch.com as `VITE_DOGFETCH_API_URL`
+- Run `npm run dev`
+- Open browser at `localhost:5173`
+
+OR
+
+- View the Demo App hosted on https://vite-tanstack-demo.netlify.app/
+
+## General Requirements
 
 You first should have users enter their name and email on a login screen. Then, you should use this information to hit our login endpoint to authenticate with our service (see API Reference below).
 
@@ -26,8 +40,7 @@ You may find it helpful to make use of a component library.
 *   Your source code should be stored in a git repository and hosted on the internet (i.e. GitHub)
 *   You should include any necessary documentation to run your site locally
 
-How to submit
--------------
+### How to submit
 
 Please provide a link to your deployed site and your public code repository via Greenhouse.
 
@@ -50,8 +63,7 @@ There is no time limit for the exercise. Out of respect for your time, we design
 
 **For any further questions or clarifications, please reach out to your recruiter.**
 
-API Reference
--------------
+## API Reference
 
 We provide our own backend to facilitate searching/fetching dog info. The base URL is `https://frontend-take-home-service.fetch.com`.
 
