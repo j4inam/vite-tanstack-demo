@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as SearchImport } from './routes/search'
 import { Route as LoginImport } from './routes/login'
+import { Route as FavoritesImport } from './routes/favorites'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -26,6 +27,12 @@ const SearchRoute = SearchImport.update({
 const LoginRoute = LoginImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const FavoritesRoute = FavoritesImport.update({
+  id: '/favorites',
+  path: '/favorites',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -44,6 +51,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/favorites': {
+      id: '/favorites'
+      path: '/favorites'
+      fullPath: '/favorites'
+      preLoaderRoute: typeof FavoritesImport
       parentRoute: typeof rootRoute
     }
     '/login': {
@@ -67,12 +81,14 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/favorites': typeof FavoritesRoute
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/favorites': typeof FavoritesRoute
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
 }
@@ -80,27 +96,30 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/favorites': typeof FavoritesRoute
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/search'
+  fullPaths: '/' | '/favorites' | '/login' | '/search'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/search'
-  id: '__root__' | '/' | '/login' | '/search'
+  to: '/' | '/favorites' | '/login' | '/search'
+  id: '__root__' | '/' | '/favorites' | '/login' | '/search'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FavoritesRoute: typeof FavoritesRoute
   LoginRoute: typeof LoginRoute
   SearchRoute: typeof SearchRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FavoritesRoute: FavoritesRoute,
   LoginRoute: LoginRoute,
   SearchRoute: SearchRoute,
 }
@@ -116,12 +135,16 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/favorites",
         "/login",
         "/search"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/favorites": {
+      "filePath": "favorites.tsx"
     },
     "/login": {
       "filePath": "login.tsx"

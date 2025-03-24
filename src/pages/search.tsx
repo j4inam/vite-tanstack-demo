@@ -6,12 +6,18 @@ import {
   useGetDogDetails,
   useSearchDogs
 } from '@/hooks/Dogs';
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuList
+} from '@/components/ui/navigation-menu';
 import { useCurrentUser, useGetUserFavorites, useToggleUserFavorites } from '@/hooks/Users';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import DogCard from '@/components/dog-card';
 import DogMatchTrigger from '@/components/dog-match-trigger';
+import { Link } from '@tanstack/react-router';
 import MultiSelectDropdown from '@/components/multi-select-dropdown';
 import { PawPrint } from 'lucide-react';
 import { parseSearchParams } from '@/utils';
@@ -91,7 +97,16 @@ const SearchPage = () => {
           </div>
           Hey {user?.name}, Find Your Perfect Furry Friend
         </a>
-        <DogMatchTrigger />
+        <div className="flex gap-4">
+          <NavigationMenu>
+            <NavigationMenuList>
+              <Link to="/favorites">
+                <NavigationMenuItem>View Favorites</NavigationMenuItem>
+              </Link>
+            </NavigationMenuList>
+          </NavigationMenu>
+          <DogMatchTrigger />
+        </div>
       </div>
       <div className="flex flex-1 items-center">
         <Card className="w-full">
@@ -106,9 +121,12 @@ const SearchPage = () => {
         </Card>
       </div>
       <div className="flex flex-1 items-center px-6">
-        <div className="w-full max-w-xs">
-          <h3 className="text-2xl font-bold">
+        <div className="flex justify-between w-full">
+          <h4 className="text-xl font-bold">
             {dogsSearchResponse?.total} {dogsSearchResponse?.total === 1 ? 'dog' : 'dogs'} found.
+          </h4>
+          <h3 className="flex items-center gap-2 font-bold text-2xl">
+            You loved {favorites?.length} {favorites?.length === 1 ? 'dog' : 'dogs'}!
           </h3>
         </div>
       </div>
@@ -143,7 +161,7 @@ const SearchPage = () => {
           </Button>
         )}
         {dogsSearchResponse?.next && (
-          <Button variant="outline" onClick={handleNextClick} className='ml-auto'>
+          <Button variant="outline" onClick={handleNextClick} className="ml-auto">
             Next
           </Button>
         )}

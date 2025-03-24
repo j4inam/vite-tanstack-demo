@@ -30,9 +30,6 @@ const DogMatchTrigger = () => {
     favorites?.length > 0 && (
       <>
         <div className="flex flex-1 items-center justify-end gap-4">
-          <p className="flex items-center gap-2 font-bold text-xl">
-            You loved {favorites?.length} {favorites?.length === 1 ? 'dog' : 'dogs'}!
-          </p>
           {!isFindDogMatchPending && (
             <Button size="lg" onClick={handleFindFurryMatch}>
               Find Furry Match
