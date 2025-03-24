@@ -11,7 +11,7 @@ export interface Dog {
   breed: string;
 }
 
-interface DogSearchParams {
+export interface DogSearchParams {
   breeds?: string[];
   zipCodes?: string[];
   ageMin?: number;
@@ -29,7 +29,7 @@ interface DogSearchResponse {
 }
 
 // Query keys
-const dogsKeys = {
+export const dogsKeys = {
   breeds: ['breeds'] as const,
   all: ['dogs'] as const,
   search: () => [...dogsKeys.all, 'search'] as const,
@@ -83,7 +83,6 @@ export const useFindDogMatch = (): UseMutationResult<
       });
       const favoriteDogs = userStorage.get('favorites');
       const favoriteDogsArray: string[] = JSON.parse(favoriteDogs);
-      console.log('favoriteDogsArray', favoriteDogsArray);
 
       if (!favoriteDogs) return undefined;
       const { data: dogMatchId } = await api.post('/dogs/match', favoriteDogsArray);
