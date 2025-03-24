@@ -11,8 +11,6 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import {
@@ -43,7 +41,7 @@ const SORT_BY_OPTIONS = [
 ];
 
 const SearchPage = () => {
-  const [filters, setFilters] = useState<DogSearchParams>({ breeds: [] });
+  const [filters, setFilters] = useState<DogSearchParams>({ breeds: [], sort: 'breed:asc' });
   const [checkedBreeds, setCheckedBreeds] = useState<string[]>([]);
   const queryClient = useQueryClient();
   const { data: breeds, isLoading: isBreedsLoading, error: breedsError } = useGetBreeds();
